@@ -1,0 +1,105 @@
+#include <bits/stdc++.h>
+#define fi first
+#define se second
+#define ll long long
+#define pb push_back
+#define db(val) "[" #val " = " << (val) << "] "
+using namespace std;
+const ll mod = 1e9 + 7;
+const int N = 55;
+const int INF = 1e9;
+
+struct Edge {
+    int u, v, flow, capa, cost;
+    Edge (int _u, int _v, int _capa, int _cost) {
+        u = _u; v = _v; capa = _capa; cost = _cost; flow = 0;
+    }
+};
+
+int n, m, a[N][N], id[N][N], vis[N * N], trace[N * N];
+int dx[] = {-1, -1, 0, 0};
+int dy[] = { 0,  0,-1,-1};
+vector<int> adj[N * N];
+vector<Edge> edges;
+
+int getID(int i, int j) {
+    return (i - 1) * n + j;
+}
+
+bool ok(int i, int j) {
+    return i >= i && i <= n && j >= 1 && j <= m;
+}
+
+void addedge(int u, int v, int w, int c) {
+    adj[u].pb(edges.size());
+    edges.pb(Edge(u, v, w, c));
+    adj[v].pb(edges.size());
+    edges.pb(Edge(v, u, 0, -c));
+}
+
+bool FindPath(int src, int snk) {
+    vector<bool> inq(n * n, false), vis(n * n, false);
+    vector<int> dis(n * n, 0);
+    queue<int> q;
+    q.push(src);
+    while (!q.empty()) {
+        int u = q.front(); q.pop();
+        inq[u] = false;
+        vis[u] = true;
+        for (auto idx : adj[u]) {
+            int v = edges[idx].v, w = edges[idx].cost;
+            if (edges[idx].flow < edges[idx].capa && dis[u] + w < dis[v]) {
+                dis[v] = dis[u] + w;
+                trace[v] = idx;
+                if (!inq[v]) {
+                    inq[v] = true;
+                    q.push(v);
+                }
+            }
+        }
+    }
+    return vis[snk];
+}
+
+int MaxFlow(int src, int snk) {
+    int flow = 0, cost = 0;
+    while (FindPath(src, snk)) {
+        int delta = INF;
+        for (int u = snk; u != src; u = edges[trace[u]].u)
+            delta = min(delta, edges[trace[u]].capa - edges[trace[u]].flow);
+        for (int u = snk; u != src; u = edges[trace[u]].u) {
+            edges[trace[u]].flow += delta;
+            edges[trace[u] ^ 1].capa -= delta;
+            cost += delta * edges[trace[u]].cost;
+        }
+        flow += delta;
+    }
+    return flow;
+}
+
+signed main()
+{
+    ios::sync_with_stdio(0);
+    cin.tie(0); cout.tie(0);
+    //freopen("voi.INP", "r", stdin);
+    //freopen("voi.OUT", "w", stdout);
+    cin >> n >> m;
+    for (int i = 1; i <= n; i++)
+        for (int j = 1; j <= m; j++) {
+            cin >> a[i][j];
+            id[i][j] = getID(i, j);
+        }
+    int src = n * m + 1, snk = n * m + 2;
+    for (int i = 1; i <= n; i++)
+        for (int j = 1; j <= m; j++) {
+            if ((i + j) % 2 == 0) addedge(src, id[i][j], 1, 0);
+            else addedge(id[i][j], snk, 1, 0);
+            if ((i + j) % 2 == 0)
+                for (int k = 0; k < 4; k++) {
+                    int x = i + dx[k], y = j + dy[k];
+                    if (!ok(x, y)) continue;
+                    addedge(id[i][j], id[x][y], 1, (a[i][j] == a[x][y]));
+                }
+        }
+    cout << MaxFlow(src, snk);
+}
