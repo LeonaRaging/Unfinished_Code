@@ -75,7 +75,7 @@ signed main()
     ios::sync_with_stdio(0);
     cin.tie(0); cout.tie(0);
     cin >> n >> m;
-    int src = 2 * n + 1, snk = 2 * n + 2, idx = 2 * n + 3;
+    int src = 2 * n + 1, snk = 2 * n + 2, idx = 2 * n + 2;
     int sum = 0;
     for (int t = 1; t <= m; t++) {
         int u, v, r, c, x; cin >> u >> v >> r >> c >> x;
@@ -104,13 +104,17 @@ signed main()
     for (auto it : edges) {
         int u = it.u, v = it.v;
         if (it.flow == 1) {
-            if (v <= 2 * n) res[u] = v - n;
-            else myVec[v].pb(u);
+            if (u <= n && v <= 2 * n) res[u] = v - n;
+            if (u <= n && v > 2 * n) myVec[v].pb(u);
+            if (u > 2 * n && v > n && v <= 2 * n) myVec[u].pb(v - n);
         }
     }
     for (int i = 2 * n + 3; i <= idx; i += 2) {
-        for (int k = 0; k < int(myVec[i].size()); i++)
-            res[myVec[i][k]] = myVec[i + 1][k] - n;
+        for (int k = 0; k < int(myVec[i].size()); k++)
+            res[myVec[i][k]] = myVec[i + 1][k];
     }
     for (int i = 1; i <= n; i++) cout << res[i] << ' ';
+    cout << '\n';
+    for (auto it : edges)
+        cout << it.u << ' ' << it.v << ' ' << it.cost << '\n';
 }
