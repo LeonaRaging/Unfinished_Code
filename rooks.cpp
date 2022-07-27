@@ -78,7 +78,7 @@ signed main()
     int src = 2 * n + 1, snk = 2 * n + 2, idx = 2 * n + 2;
     int sum = 0;
     for (int t = 1; t <= m; t++) {
-        int u, v, r, c, x; cin >> u >> v >> r >> c >> x;
+        int u, v, r, c, x; cin >> u >> r >> v >> c >> x;
         idx++;
         for (int i = u; i <= v; i++)
             addedge(i, idx, 1, 0);
@@ -88,7 +88,7 @@ signed main()
         addedge(idx - 1, idx, x, -1);
         for (int i = u; i <= v; i++)
             for (int j = r; j <= c; j++)
-                vis[i][j] = 1;
+                vis[i][j] = vis[j][i] = 1;
         sum += x;
     }
     for (int i = 1; i <= n; i++)
@@ -99,6 +99,9 @@ signed main()
         addedge(i + n, snk, 1, 0);
     }
     auto ans = MinCost(src, snk);
+    for (auto it : edges)
+        cout << it.u << ' ' << it.v << ' ' << it.cost << '\n';
+    cout << ans.se << ' ';
     if (ans.fi != n || ans.se != -sum) return cout << "NO", 0;
     cout << "YES" << '\n';
     for (auto it : edges) {
@@ -114,7 +117,4 @@ signed main()
             res[myVec[i][k]] = myVec[i + 1][k];
     }
     for (int i = 1; i <= n; i++) cout << res[i] << ' ';
-    cout << '\n';
-    for (auto it : edges)
-        cout << it.u << ' ' << it.v << ' ' << it.cost << '\n';
 }
