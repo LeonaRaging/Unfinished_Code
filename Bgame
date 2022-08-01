@@ -1,0 +1,122 @@
+#include <bits/stdc++.h>
+#define fi first
+#define se second
+#define ll long long
+#define pb push_back
+#define pii pair<int,int>
+#define db(val) "[" #val " = " << (val) << "] "
+using namespace std;
+const int maxn = 1e5 + 4;
+const int N = 18;
+const int INF = 1e9;
+
+struct Dsu {
+    vector<int> par, Rank;
+    void init(int n) {
+        par.resize(n + 1);
+        Rank.resize(n + 1);
+        for (int i = 1; i <= n; i++) par[i] = i, Rank[i] = 1;
+    }
+    int find(int x) {
+        if (x != par[x]) par[x] = find(par[x]);
+        return par[x];
+    }
+    bool join(int u, int v) {
+        u = find(u); v = find(v);
+        if (u == v) return 0;
+        if (Rank[u] < Rank[v]) swap(u, v);
+        Rank[u] += Rank[v];
+        par[v] = u;
+        return 1;
+    }
+} ds;
+
+struct Edge {
+    int u, v, w;
+    bool operator < (const Edge &other) {
+        return w < other.w;
+    }
+    tuple<int,int,int> init() {
+        return {u, v, w};
+    }
+};
+
+int n, m, up[maxn][20], mx[maxn][20], h[maxn], used[maxn];
+vector<Edge> edges;
+map<pair<int,int>,int> mp, mx2;
+vector<pair<int,int>> adj[maxn];
+
+void dfs(int u, int p) {
+    up[u][0] = p;
+    for (int j = 1; j <= N; j++) {
+        up[u][j] = up[up[u][j - 1]][j - 1];
+        mx[u][j] = max(mx[u][j - 1], mx[up[u][j - 1]][j - 1]);
+    }
+    for (auto it : adj[u]) {
+        int v, w; tie(v, w) = it;
+        if (v == p) continue;
+        h[v] = h[u] + 1;
+        mx[v][0] = -w;
+        dfs(v, u);
+    }
+}
+
+int lca(int u, int v) {
+    int res = 0;
+    if (h[u] < h[v]) swap(u, v);
+    int k = h[u] - h[v];
+    for (int j = N; j >= 0; j--)
+        if (k >> j & 1) {
+            res = max(res, mx[u][j]);
+            u = up[u][j];
+        }
+    if (u == v) return res;
+    for (int j = N; j >= 0; j--)
+        if (up[u][j] != up[v][j]) {
+            res = max({res, mx[u][j], mx[v][j]});
+            u = up[u][j]; v = up[v][j];
+        }
+    res = max({res, mx[u][0], mx[v][0]});
+    return res;
+}
+
+signed main()
+{
+    ios::sync_with_stdio(0);
+    cin.tie(0); cout.tie(0);
+    freopen("BGAME.INP", "r", stdin);
+    freopen("BGAME.OUT", "w", stdout);
+    cin >> n >> m;
+    int res = 0;
+    for (int i = 1; i <= m; i++) {
+        int u, v, w; cin >> u >> v >> w;
+        if (u > v) swap(u, v);
+        int flag = (mp.find({u, v}) != mp.end());
+        if (w > mp[{u, v}]) {
+            mx2[{u, v}] = mp[{u, v}];
+            mp[{u, v}] = w;
+            if (flag) res = max(res, mp[{u, v}] + mx2[{u, v}]);
+        }
+    }
+    for (auto it : mp) {
+        int u, v, w; tie(u, v) = it.fi; w = it.se;
+        edges.pb({u, v, -w});
+    }
+    sort(edges.begin(), edges.end());
+    ds.init(n);
+    m = edges.size();
+    for (int i = 0; i < m; i++) {
+        int u, v, w; tie(u, v, w) = edges[i].init();
+        if (ds.join(u, v)) {
+            adj[u].pb({v, w});
+            adj[v].pb({u, w});
+            used[i] = 1;
+        }
+    }
+    dfs(1, 0);
+    for (int i = 0; i < m; i++) if (!used[i]) {
+        int u, v, w; tie(u, v, w) = edges[i].init();
+        res = max(res, lca(u, v) - w);
+    }
+    cout << res;
+}
