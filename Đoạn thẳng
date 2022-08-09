@@ -1,0 +1,97 @@
+#include<bits/stdc++.h>
+#define ll long long
+#define fi first
+#define se second
+#define pb push_back
+#define db(val) "[" #val " = " << (val) << "] "
+#define mp make_pair
+using namespace std;
+const int maxn = 4e5 + 4;
+const ll INF = 1e16;
+const ll mod = 1e9 + 7;
+const int N = 18;
+
+int n, q, k, spt[maxn][20], mx[maxn][20], R[maxn], P[maxn];
+pair<int,int> a[maxn], query[maxn];
+vector<int> vals;
+
+int get(int i, int k) {
+    for (int j = N; j >= 0; j--)
+        if (k >> j & 1)
+            i = spt[i][j];
+    return i;
+}
+
+int getmax(int l, int r) {
+    int j = __lg(r - l + 1);
+    return max(mx[l][j], mx[r - (1 << j) + 1][j]);
+}
+
+int main()
+{
+    ios::sync_with_stdio(0);
+    cin.tie(0); cout.tie(0);
+    //freopen("Group.INP", "r", stdin);
+    //freopen("Group.OUT", "w", stdout);
+    cin >> n >> q >> k;
+    for (int i = 1; i <= n; i++) {
+        cin >> a[i].fi >> a[i].se;
+        vals.pb(a[i].fi);
+        vals.pb(a[i].se);
+    }
+    sort(a + 1, a + 1 + n);
+    for (int i = 1; i <= q; i++) {
+        cin >> query[i].fi >> query[i].se;
+        vals.pb(query[i].fi);
+        vals.pb(query[i].se);
+    }
+    sort(vals.begin(), vals.end());
+    vals.pb(1e9 + 1);
+    vals.erase(unique(vals.begin(), vals.end()), vals.end());
+    for (int i = 1; i <= n; i++) {
+        a[i].fi = lower_bound(vals.begin(), vals.end(), a[i].fi) - vals.begin();
+        a[i].se = lower_bound(vals.begin(), vals.end(), a[i].se) - vals.begin();
+    }
+    for (int i = 1; i <= q; i++) {
+        query[i].fi = lower_bound(vals.begin(), vals.end(), query[i].fi) - vals.begin();
+        query[i].se = lower_bound(vals.begin(), vals.end(), query[i].se) - vals.begin();
+    }
+    int sz = vals.size();
+    int l = 1;
+    memset(R, -1, sizeof R);
+    for (int i = 0; i < sz; i++) {
+        while (l <= n && a[l].fi <= i) {
+            R[i] = max(R[i], a[l].se);
+            l++;
+        }
+        R[i] = max({R[i], R[i - 1], i});
+        spt[i][0] = R[i];
+    }
+    for (int j = 1; j <= N; j++)
+        for (int i = 0; i + (1 << j) <= sz; i++)
+            spt[i][j] = spt[spt[i][j - 1]][j - 1];
+    for (int i = 0; i < sz; i++) {
+        P[i] = get(i, k);
+        mx[i][0] = vals[P[i]] - vals[i];
+    }
+    for (int j = 1; j <= N; j++)
+        for (int i = 0; i + (1 << j) <= sz; i++)
+            mx[i][j] = max(mx[i][j - 1], mx[i + (1 << (j - 1))][j - 1]);
+    for (int i = 1; i <= q; i++) {
+        int c, d; tie(c, d) = query[i];
+        if (P[c] > d) {
+            cout << vals[d] - vals[c] << '\n';
+            continue;
+        }
+        int l = 0, r = sz - 1, x;
+        while (l <= r) {
+            int m = (l + r) / 2;
+            if (P[m] <= d) {
+                x = m;
+                l = m + 1;
+            }
+            else r = m - 1;
+        }
+        cout << max(vals[d] - vals[x + 1], getmax(c, x)) << '\n';
+    }
+}
