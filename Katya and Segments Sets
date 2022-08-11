@@ -1,0 +1,88 @@
+#include<bits/stdc++.h>
+#define ll long long
+#define fi first
+#define se second
+#define pb push_back
+#define db(val) "[" #val " = " << (val) << "] "
+#define mp make_pair
+using namespace std;
+const int maxn = 1e5 + 4;
+const int INF = 1e9;
+const ll mod = 1e9 + 7;
+const int N = 1e4 + 3;
+
+struct Node {
+    vector<pair<int,int>> vec;
+};
+
+int n, m, k, x, y, Right[maxn];
+Node t[4 * maxn];
+vector<pair<int,int>> A[maxn];
+multiset<int> ms;
+vector<pair<int,int>,int> myVec;
+
+void build(int v, int l, int r) {
+    //cout << v << ' ' << l << ' ' << r << '\n';
+    if (l > r) return;
+    myVec.clear(); ms.clear();
+    for (int i = l; i <= r; i++) {
+        ms.pb(Right[i] = INF);
+        for (auto it : A[i])
+            myVec.pb({it, i});
+    }
+    sort(myVec.rbegin(), myVec.rend());
+    for (auto it : myVec) {
+        if (Right[it.se] > it.fi.se) {
+            ms.erase(ms.find(Right[it.se]));
+            ms.insert(Right[it.se] = it.fi.se);
+        }
+        t[v].vec.pb(it.fi.fi, *ms.rbegin());
+    }
+    sort(t[v].vec.begin(), t[v].vec.end());
+    if (l >= r) return;
+    int mid = (l + r) / 2;
+    build(2 * v, l, mid);
+    build(2 * v + 1, mid + 1, r);
+}
+
+int get(int v, int tl, int tr, int l, int r) {
+    //cout << v << ' ' << tl << ' ' << tr << '\n';
+    if (tl > r || tr < l) return 1;
+    if (tl >= l && tr <= r) {
+        int L = 0, R = t[v].vec.size() - 1;
+        while (L <= R) {
+            int mid = (L + R) / 2;
+            if (t[v].vec[mid].fi < x) {
+                L = mid + 1;
+            }
+            else if (t[v].vec[mid].se > y) {
+                R = mid - 1;
+            }
+            else return 1;
+        }
+        return 0;
+    }
+    int mid = (tl + tr) / 2;
+    int L = get(2 * v, tl, mid, l, r);
+    int R = get(2 * v + 1, mid + 1, tr, l, r);
+    return (L && R);
+}
+
+int main()
+{
+    ios::sync_with_stdio(0);
+    cin.tie(0); cout.tie(0);
+    cin >> n >> m >> k;
+    for (int i = 1; i <= k; i++) {
+        int l, r, x; cin >> l >> r >> x;
+        A[x].pb({l, r});
+    }
+    build(1, 1, n);
+    for (auto it : t[4].vec) cout << db(it.fi) << db(it.se) << '\n';
+    for (int i = 1; i <= m; i++) {
+        int a, b; cin >> a >> b >> x >> y;
+        int res = get(1, 1, n, a, b);
+        cout << (res ? "yes" : "no") << '\n';
+        cout.flush();
+    }
+}
