@@ -7,13 +7,13 @@ using namespace std;
 #define pb push_back
 #define db(val) "[" #val " = " << (val) << "] "
 
-const int maxn = 3e3 + 4;
+const int maxn = 3e5 + 4;
 const int LOG = 2;
 const int N = 1505;
 
-int n, m, dem[N], cost[N];
+int n, m, dem[maxn], cost[maxn];
 ll sum[N][N], sumsqr[N][N], cnt[N][N];
-vector<int> myVec[N];
+vector<int> myVec[maxn];
 
 pair<int,int> get(ll AplusB, ll A2plusB2) {
     ll AB = (AplusB * AplusB - A2plusB2) / 2;
@@ -28,9 +28,9 @@ void Solve() {
     for (int i = 1; i <= n; i++) {
         int x, u, y, v; cin >> x >> u >> y >> v;
         sum[x][y] += i; sumsqr[x][y] += i * i; cnt[x][y]++;
-        sum[x][y + 1] -= i; sumsqr[x][y + 1] -= i * i; cnt[x][y + 1]--;
-        sum[u + 1][v] -= i; sumsqr[u + 1][v] -= i * i; cnt[u  + 1][v]--;
-        sum[u + 1][v + 1] += i; sumsqr[u + 1][v + 1] += i * i; cnt[u + 1][v + 1]--;
+        sum[x][v + 1] -= i; sumsqr[x][v + 1] -= i * i; cnt[x][v + 1]--;
+        sum[u + 1][y] -= i; sumsqr[u + 1][y] -= i * i; cnt[u  + 1][y]--;
+        sum[u + 1][v + 1] += i; sumsqr[u + 1][v + 1] += i * i; cnt[u + 1][v + 1]++;
     }
     for (int i = 1; i <= m; i++)
         for (int j = 1; j <= m; j++) {
@@ -63,9 +63,15 @@ void Solve() {
     }
     res = min(res, all - mx[0] - mx[1]);
     cout << res << '\n';
+    for (int i = 1; i <= m; i++) {
+        for (int j = 1; j <= m; j++)
+            sum[i][j] = sumsqr[i][j] = cnt[i][j] = 0;
+    }
+    for (int i = 1; i <= n; i++)
+        myVec[i].clear(), dem[i] = cost[i] = 0;
 }
 
-int main()
+signed main()
 {
     ios::sync_with_stdio(0);
     cin.tie(0); cout.tie(0);
