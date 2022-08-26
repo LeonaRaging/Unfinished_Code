@@ -9,7 +9,7 @@ using namespace std;
 
 const int maxn = 3e5 + 4;
 const int LOG = 2;
-const int N = 1505;
+const int N = 1515;
 
 int n, m, dem[maxn], cost[maxn];
 ll sum[N][N], sumsqr[N][N], cnt[N][N];
@@ -64,10 +64,10 @@ void Solve() {
     res = min(res, all - mx[0] - mx[1]);
     cout << res << '\n';
     for (int i = 1; i <= m; i++) {
-        for (int j = 1; j <= m; j++)
+        for (int j = 1; j <= m + 5; j++)
             sum[i][j] = sumsqr[i][j] = cnt[i][j] = 0;
     }
-    for (int i = 1; i <= n; i++)
+    for (int i = 1; i <= n + 3; i++)
         myVec[i].clear(), dem[i] = cost[i] = 0;
 }
 
