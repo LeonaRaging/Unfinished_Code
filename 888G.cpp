@@ -8,7 +8,7 @@ using namespace std;
 #define db(val) "[" #val " = " << (val) << "] "
 
 const int maxn = 2e5 + 4;
-const int LOG = 30;
+const int LOG = 2;
 
 struct Edge {
     int u, v, w;
@@ -76,6 +76,7 @@ struct Trie {
   int get(int x) {
     int v = 0;
     for (int i = LOG; i >= 0; i--) {
+        clog << v << '\n';
         int c = (x >> i & 1);
         if (!nxt[v][c]) {
             if (!nxt[v][1 - c]) break;
@@ -100,7 +101,7 @@ int main()
     ll res = 0;
     for (int i = 1; i <= n; i++)
         t.add_string(a[i], i);
-    clog << db(t.get(a[3]));
+    //cout << db(t.nxt[0][0]);
     return 0;
     for (int time = 0; time < LOG; time++) {
         edges.clear();
