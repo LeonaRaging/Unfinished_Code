@@ -46,8 +46,7 @@ struct DisjointSet {
 } Dsu;
 
 struct Trie {
-  int sz, nxt[30 * maxn][2];
-  bool leaf[30 * maxn];
+  int sz, nxt[30 * maxn][2], leaf[30 * maxn];
   Trie () {
     sz = 0;
     for (int i = 0; i < 30 * maxn; i++)
@@ -76,7 +75,6 @@ struct Trie {
   int get(int x) {
     int v = 0;
     for (int i = LOG; i >= 0; i--) {
-        clog << v << '\n';
         int c = (x >> i & 1);
         if (!nxt[v][c]) {
             if (!nxt[v][1 - c]) break;
@@ -101,8 +99,6 @@ int main()
     ll res = 0;
     for (int i = 1; i <= n; i++)
         t.add_string(a[i], i);
-    //cout << db(t.nxt[0][0]);
-    return 0;
     for (int time = 0; time < LOG; time++) {
         edges.clear();
         for (int i = 1; i <= n; i++) if (mySet[i].size()) {
@@ -114,8 +110,8 @@ int main()
                 if (a[it] ^ a[idx] < bst.fi)
                     bst = {a[it] ^ a[idx], idx};
             }
-//            if (time == 0 && i == 1)
-//                clog << db(t.get(a[1])) << '\n';
+            if (time == 0 && i == 1)
+                clog << db(t.get(a[1])) << '\n';
             for (auto it : mySet[i])
                 t.add_string(a[it], it);
             edges.pb({i, bst.se, bst.fi});
