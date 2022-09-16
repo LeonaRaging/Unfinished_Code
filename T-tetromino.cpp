@@ -22,12 +22,11 @@ bool ok(int i, int j) {
 }
 
 void place(int i, int j, int k) {
-    clog << i << ' ' << j << ' ' << k << '\n';
     for (int p = 0; p < 4; p++)
         if (p != k) {
             int x = i + dx[p], y = j + dy[p];
-            if (!ok(x, y) || abs(col[x][y] == 1))
-                cout << "NO", exit(0);
+            if (!ok(x, y) || col[x][y])
+                cout << "No", exit(0);
             q.push({x, y});
             col[x][y] = 2;
         }
@@ -39,8 +38,7 @@ void bfs() {
         int i, j; tie(i, j) = q.front(); q.pop();
         for (int p = 0; p < 4; p++) {
             int x = i + dx[p], y = j + dy[p];
-            if (ok(x, y) && abs(col[x][y] == 1)) {
-                if (x == 4 && y == 5) clog << "ok";
+            if (ok(x, y) && abs(col[x][y]) == 1) {
                 place(x, y, p ^ 1);
                 col[x][y] = 2;
             }
@@ -62,19 +60,29 @@ void dfs(int i, int j, int k) {
             dfs(x, y, p ^ 1);
     }
     for (int p = 0; p < 4; p++) {
-        int res = 0;
-        for (int d = 0; d < 4; d++) if (d != k) {
+        int res = a[i][j];
+        for (int d = 0; d < 4; d++) {
+            int x = i + 2 * dx[d], y = j + 2 * dy[d];
             if (d == p) {
-                
+                if (ok(x, y) && d != k) {
+                    res += max(dp[0][x][y], dp[1][x][y]);
+                }
+            }
+            else {
+                res += a[i + dx[d]][j + dy[d]];
+                if (ok(x, y) && d != k) {
+                    res += dp[0][x][y];
+                }
             }
         }
+        dp[p != k][i][j] = max(dp[p != k][i][j], res);
     }
 }
 
 int main()
 {
-    // ios::sync_with_stdio(0);
-    // cin.tie(0); cout.tie(0);
+    ios::sync_with_stdio(0);
+    cin.tie(0); cout.tie(0);
     //freopen(".INP", "r", stdin);
     //freopen(".OUT", "w", stdout);
     cin >> r >> c;
@@ -100,16 +108,23 @@ int main()
     bfs();
     for (int i = 1; i <= r; i++)
         for (int j = 1; j <= c; j++) if (col[i][j] == 1) {
-            if (i > 1 && j > 1 && col[i - 1][j - 1] == 1)
+            if (i > 1 && j > 1 && col[i - 1][j - 1] == 1) {
                 place(i, j, 0), bfs();
+            }
             if (i > 1 && j < c && col[i - 1][j + 1] == 1)
                 place(i, j, 0), bfs();
         }
+    int res = 0;
     for (int i = 1; i <= r; i++)
         for (int j = 1; j <= c; j++) if (col[i][j] == 1) {
             dfs(i, j, -1);
+            if (col[i][j] == -1) {
+                res += dp[1][i][j];
+            }
         }
     for (int i = 1; i <= r; i++)
         for (int j = 1; j <= c; j++)
-            cout << col[i][j] << (j == c ? '\n' : ' ');
+            if (col[i][j] == 2)
+                res += a[i][j];
+    cout << res;
 }
