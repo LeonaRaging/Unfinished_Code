@@ -8,7 +8,7 @@ using namespace std;
 #define db(val) "[" #val " = " << (val) << "] "
 
 const ll mod = 1e9 + 7;
-const int maxn = 1e5 + 4;
+const int maxn = 3e5 + 4;
 const int INF = 1e9;
 
 struct Edge {
@@ -57,8 +57,8 @@ int main()
         int idx; cin >> idx;
         good[idx] = 1;
         int u = edges[idx].u, v = edges[idx].v;
-        adj[u].pb(i);
-        adj[v].pb(i);
+        adj[u].pb(idx);
+        adj[v].pb(idx);
     }
     dfs(1, 0);
     for (int i = 1; i <= m; i++) {
@@ -69,15 +69,16 @@ int main()
             if (h[u] < h[v])
                 swap(u, v);
             myVec.pb(par[u]);
-            nxt[u] = par[u];
+            nxt[u] = edges[par[u]].get(u);
             u = find(u);
         }
         sort(myVec.begin(), myVec.end());
-        for (auto i : myVec)
-            res[i] = ++num;
+        for (auto idx : myVec) {
+            res[idx] = ++num;
+        }
         if (!good[i])
             res[i] = ++num;
     }
-    for (int i = 1; i <= n; i++)
+    for (int i = 1; i <= m; i++)
         cout << res[i] << ' ';
 }
