@@ -50,8 +50,8 @@ void init() {
 
 signed main()
 {
-    // ios::sync_with_stdio(0);
-    // cin.tie(0); cout.tie(0);
+    ios::sync_with_stdio(0);
+    cin.tie(0); cout.tie(0);
     //freopen(".INP", "r", stdin);
     //freopen(".OUT", "w", stdout);
     cin >> n >> k;
@@ -59,8 +59,8 @@ signed main()
         cin >> a[i];
     int cur = 0, cnt = 0;
     int L = 1, R = n;
-    while (a[L] < 0) L++;
-    while (a[R] < 0) R--;
+    while (a[L] <= 0) L++;
+    while (a[R] <= 0) R--;
     int flag = (a[L] > 0 ? 1 : -1);
     for (int i = L; i <= R + 1; i++) {
         if (a[i] * flag < 0 || i == R + 1) {
@@ -85,11 +85,10 @@ signed main()
         int pre = (Rank[u] > 0 && u != x) + (Rank[v] > 0 && v != x) + (Rank[x] > 0);
         Dsu.join(x, u);  
         Dsu.join(x, v);
-        pq.push({abs(Rank[u]), u});
+        pq.push({abs(Rank[x]), x});
         int suf = Rank[u] > 0;
         cnt -= (pre - suf);
         init();
-        clog << db(x) << db(u) << db(v) << '\n';
     }
     int res = 0;
     for (auto i : ms)
